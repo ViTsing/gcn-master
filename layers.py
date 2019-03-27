@@ -49,6 +49,9 @@ class Layer(object):
             (i.e. takes input, returns output)
         __call__(inputs): Wrapper for _call()
         _log_vars(): Log all variables
+        基类中留下了_call接口,并且在__call__()中对其进行了调用,
+        使用对象名传入tensor时会自动调用派生类中各自的功能
+        核心逻辑部分
     """
 
     def __init__(self, **kwargs):
@@ -112,6 +115,10 @@ class Dense(Layer):
             self._log_vars()
 
     def _call(self, inputs):
+        """
+        :param inputs:
+        :return: 带有dropout的全连接层
+        """
         x = inputs
 
         # dropout
@@ -171,7 +178,7 @@ class GraphConvolution(Layer):
         else:
             x = tf.nn.dropout(x, 1 - self.dropout)
 
-        # convolve
+        # convolve 图卷积逻辑部分
         supports = list()
         for i in range(len(self.support)):
             if not self.featureless:
