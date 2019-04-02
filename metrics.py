@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 '''
-对于评价的处理
+评价指标
 '''
 
 

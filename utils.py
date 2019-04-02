@@ -45,11 +45,13 @@ def load_data(dataset_str: object) -> object:
     objects = []
     for i in range(len(names)):
         with open("data/ind.{}.{}".format(dataset_str, names[i]), 'rb') as f:
+            # some differences between python 2.x and python 3.x for loading .pkl files
             if sys.version_info > (3, 0):
                 objects.append(pkl.load(f, encoding='latin1'))
             else:
                 objects.append(pkl.load(f))
 
+    # list can be changed while tuple cannot
     x, y, tx, ty, allx, ally, graph = tuple(objects)
     test_idx_reorder = parse_index_file("data/ind.{}.test.index".format(dataset_str))
     test_idx_range = np.sort(test_idx_reorder)
@@ -65,17 +67,24 @@ def load_data(dataset_str: object) -> object:
         ty_extended[test_idx_range-min(test_idx_range), :] = ty
         ty = ty_extended
 
+    # transform into lil format to store sparse matrix
     features = sp.vstack((allx, tx)).tolil()
+    # sort for test rows in lil matrix
     features[test_idx_reorder, :] = features[test_idx_range, :]
     adj = nx.adjacency_matrix(nx.from_dict_of_lists(graph))
 
     labels = np.vstack((ally, ty))
     labels[test_idx_reorder, :] = labels[test_idx_range, :]
 
+    # build a validation set
+    # length of 1000
     idx_test = test_idx_range.tolist()
+    # 140
     idx_train = range(len(y))
+    # 141~500
     idx_val = range(len(y), len(y)+500)
 
+    #
     train_mask = sample_mask(idx_train, labels.shape[0])
     val_mask = sample_mask(idx_val, labels.shape[0])
     test_mask = sample_mask(idx_test, labels.shape[0])
