@@ -188,10 +188,12 @@ class GraphConvolution(Layer):
                 pre_sup = self.vars['weights_' + str(i)]
             support = dot(self.support[i], pre_sup, sparse=True)
             supports.append(support)
+        # Adds all input tensors element-wise
         output = tf.add_n(supports)
 
         # bias
         if self.bias:
             output += self.vars['bias']
 
+        # 添加激活函数，这里选用relu
         return self.act(output)
