@@ -87,7 +87,7 @@ for epoch in range(FLAGS.epochs):
     # Training step
     outs = sess.run([model.opt_op, model.loss, model.accuracy], feed_dict=feed_dict)
 
-    # Validation
+    # Validation, this mask is different from train mask
     cost, acc, duration = evaluate(features, support, y_val, val_mask, placeholders)
     cost_val.append(cost)
 
